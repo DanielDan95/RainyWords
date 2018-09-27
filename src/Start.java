@@ -1,16 +1,12 @@
 import java.net.*;
+import javax.swing.*;
 
 
 public class Start {
-    public static void main(String args []) throws Exception {
-        int port = 5000;
-        try {
-            ServerSocket socket = new ServerSocket(port);
 
-        }
-        catch (Exception E) {
-            System.exit(1);
-        }
+    public static void main(final String[] args) {
+        FirstPage start = new FirstPage();
+        SwingUtilities.invokeLater(start);
 
     }
 }
