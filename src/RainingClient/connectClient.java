@@ -4,7 +4,11 @@ import java.awt.Dimension;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
+
+import RainingServer.Message;
 
 public class connectClient extends JFrame{
 	
@@ -14,36 +18,63 @@ public class connectClient extends JFrame{
     
     //Settings Connection
     final int SERVERPORT = 23456;
-    final String HOST = "loclahost";
+    final String HOST = "localhost";
 
     Socket socket;
+    ObjectOutputStream writer;
+    ObjectInputStream input;
+    
+    boolean close = false;
     
     public connectClient(){
     	setupUI();
     	try {
-			socket = new Socket(HOST, SERVERPORT);
-		}
+            this.socket = new Socket(HOST, SERVERPORT);
+            this.writer = new ObjectOutputStream(this.socket.getOutputStream());
+            this.input = new ObjectInputStream(this.socket.getInputStream());
+            startProgram();
+        }
     	catch (UnknownHostException e) {
-			System.out.println("Server not found: " + e.getMessage());
-		}
+            System.out.println("Server not found: " + e.getMessage());
+        }
     	catch (IOException e) {
-			System.out.println("I/O error: " + e.getMessage());
-		}
+            System.out.println("I/O error: " + e.getMessage());
+	}
     }
     
-    public void sendDataToServer(String send) {
-    	try {
-			OutputStream output = socket.getOutputStream();
-
-			byte[] data = send.getBytes();
-			output.write(data);
-
-			PrintWriter writer = new PrintWriter(output, true);
-			writer.println("This is a message sent to the server");
-		} catch (IOException e) {
-			System.out.println("I/O error: " + e.getMessage());
-		}
+    public void sendDataToServer(int status, String toSend) {
+        try {
+            Message message = new Message(status,toSend);
+            this.writer.writeObject(message);
+        } catch (IOException ex) {
+            Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
+    public void startProgram(){
+        while(!close){
+            try {
+                Message message = (Message) this.input.readObject();
+                handleMessage(message);
+            } catch (IOException ex) {
+                
+            } catch (ClassNotFoundException ex) {
+                
+            }
+         
+        }
+    }
+    public void handleMessage(Message message){
+        switch(message.getStatus()){
+            case -1:
+                shutdownSequence();
+                break;
+            
+            default:
+                System.out.println("Can not understand Status from server: " + message.getStatus());
+        }
+        
+    }
+    
     
     public void setupUI(){
         this.setSize(this.WIDTH, this.HEIGHT);
@@ -61,11 +92,30 @@ public class connectClient extends JFrame{
                 		JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
                 if(PromptResult==JOptionPane.YES_OPTION)
                 {
-                	sendDataToServer("Cya lator alligator");
-                    System.exit(0);
+                	sendDataToServer(-1, "DISCONNECT");
+                        shutdownSequence();
+                    
                 }
             }
         });
+    }
+    public void shutdownSequence(){
+        try {
+            this.close = true;
+            this.input.close();
+            this.writer.flush();
+            this.writer.close();
+            try {
+                Thread.sleep(100);
+                this.socket.close();
+                System.exit(0);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
     }
     
     public void addElements(){
@@ -82,7 +132,8 @@ public class connectClient extends JFrame{
         
         nameButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendDataToServer(usernameField.getText());
+				sendDataToServer(1, usernameField.getText());
+                                System.out.println("Button Clicked");
 			}
         });
     }

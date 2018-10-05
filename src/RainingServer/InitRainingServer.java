@@ -17,13 +17,15 @@ public class InitRainingServer extends JFrame{
     final int PORT = 23456;
     
     //Clients
-    ArrayList<Thread> clients;
+    ArrayList<Thread> threads;
+    ArrayList<handleClient> clients;
     ServerSocket server;
     
     
     
     public InitRainingServer(){
-        this.clients = new ArrayList<Thread>();
+        this.threads = new ArrayList<Thread>();
+        this.clients = new ArrayList<handleClient>();
         setupUI();
         System.out.println("Server is up and running on port: " + this.PORT);
         
@@ -40,8 +42,10 @@ public class InitRainingServer extends JFrame{
     public void startServer(){
         while(true){
             try {
-                Thread thread = new Thread(new handleClient(this.server.accept()));
-                this.clients.add(thread);
+                handleClient client = new handleClient(this.server.accept()); 
+                this.clients.add(client);
+                Thread thread = new Thread(client);
+                this.threads.add(thread);
                 thread.start();
                 
             } catch (IOException ex) {
