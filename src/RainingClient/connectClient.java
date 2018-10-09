@@ -45,13 +45,15 @@ public class connectClient extends JFrame{
     public void sendDataToServer(int status, String toSend) {
         try {
             Message message = new Message(status,toSend);
+            
             this.writer.writeObject(message);
             System.out.printf("Sent message to server: %s\n", toSend);
-        } catch (IOException ex) {
-            Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            System.out.println("CRASHHs");
         }
     }
     public void startProgram(){
+    
         while(!close){
             try {
                 Message message = (Message) this.input.readObject();
@@ -81,8 +83,7 @@ public class connectClient extends JFrame{
         this.setSize(this.WIDTH, this.HEIGHT);
         addElements();
         this.setVisible(true);
-        this.setTitle("Client: Raining Words");
-        //this.setDefaultCloseOperation(EXIT_ON_CLOSE);      
+        this.setTitle("Client: Raining Words");  
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override

@@ -7,7 +7,10 @@ import java.util.logging.Logger;
 
 public class handleClient implements Runnable{
     Socket client;
-    String name = "";
+    String name = "Anonymous";
+    String userStatus = "Idle";
+
+    
     ObjectOutputStream writer;
     ObjectInputStream input;
     
@@ -23,6 +26,7 @@ public class handleClient implements Runnable{
             System.out.println("Error: Server could not open Out/In Streams to Client");
         }
     }
+
    
     public void run() {
         System.out.println("Client Connected!");
@@ -45,12 +49,12 @@ public class handleClient implements Runnable{
             case -1:
                 shutdownSequence(false);
                 break;
+            case 1:
+                this.name = message.getMessage();
+                break;
             
-                
             default:
                 System.out.println("Could not handle Message with status: " + message.getStatus());
-            
-            
             
         }
     
@@ -68,6 +72,25 @@ public class handleClient implements Runnable{
             Logger.getLogger(handleClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     
+    }
+    
+    //GETTERS
+    public String getUserStatus() {
+        return userStatus;
+    }
+    public String getName() {
+        return name;
+    }
+    public void changeState(int state){
+        if(state == 1){
+            this.userStatus = "Idle";
+        }
+        else if(state == 2){
+            this.userStatus = "Waiting Oppon";
+        }
+        else if(state == 3){
+            this.userStatus = "Playing";
+        }
     }
     
     
