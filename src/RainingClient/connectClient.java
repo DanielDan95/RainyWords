@@ -46,6 +46,7 @@ public class connectClient extends JFrame{
         try {
             Message message = new Message(status,toSend);
             this.writer.writeObject(message);
+            System.out.printf("Sent message to server: %s\n", toSend);
         } catch (IOException ex) {
             Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -81,7 +82,7 @@ public class connectClient extends JFrame{
         addElements();
         this.setVisible(true);
         this.setTitle("Client: Raining Words");
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);      
+        //this.setDefaultCloseOperation(EXIT_ON_CLOSE);      
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -93,7 +94,7 @@ public class connectClient extends JFrame{
                 if(PromptResult==JOptionPane.YES_OPTION)
                 {
                 	sendDataToServer(-1, "DISCONNECT");
-                        shutdownSequence();
+                    shutdownSequence();
                     
                 }
             }
@@ -115,7 +116,6 @@ public class connectClient extends JFrame{
         } catch (IOException ex) {
             Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
         }
-    
     }
     
     public void addElements(){
@@ -133,7 +133,7 @@ public class connectClient extends JFrame{
         nameButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				sendDataToServer(1, usernameField.getText());
-                                System.out.println("Button Clicked");
+                System.out.println("Username set");
 			}
         });
     }

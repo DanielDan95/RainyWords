@@ -64,6 +64,7 @@ public class InitRainingServer extends JFrame{
     public void setupUI(){
         this.setSize(this.WIDTH, this.HEIGHT);
         this.setVisible(true);
+        this.setTitle("Server: Raining Words");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         
     }
