@@ -1,7 +1,7 @@
 package RainingClient;
 
-import java.awt.Dimension;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
@@ -10,7 +10,7 @@ import javax.swing.*;
 
 import RainingServer.Message;
 
-public class connectClient extends JFrame{
+public class connectClient implements Runnable{
 	
     //Settings UI
     final int WIDTH = 1000;
@@ -24,22 +24,30 @@ public class connectClient extends JFrame{
     ObjectOutputStream writer;
     ObjectInputStream input;
     
-    boolean close = false;
+    boolean close = true;
     
-    public connectClient(){
+    JFrame frame;
+    JPanel old;
+    
+    public connectClient(JFrame frame, String username){
+    	this.frame = frame;
+    	this.old = (JPanel) frame.getContentPane();
     	setupUI();
     	try {
             this.socket = new Socket(HOST, SERVERPORT);
             this.writer = new ObjectOutputStream(this.socket.getOutputStream());
             this.input = new ObjectInputStream(this.socket.getInputStream());
-            startProgram();
+        	close = false;
+        	sendDataToServer(1, username);
         }
     	catch (UnknownHostException e) {
             System.out.println("Server not found: " + e.getMessage());
+            shutdownSequence();
         }
     	catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
-	}
+            shutdownSequence();
+    	}
     }
     
     public void sendDataToServer(int status, String toSend) {
@@ -50,20 +58,6 @@ public class connectClient extends JFrame{
             System.out.printf("Sent message to server: %s\n", toSend);
         } catch (Exception ex) {
             System.out.println("CRASHHs");
-        }
-    }
-    public void startProgram(){
-    
-        while(!close){
-            try {
-                Message message = (Message) this.input.readObject();
-                handleMessage(message);
-            } catch (IOException ex) {
-                
-            } catch (ClassNotFoundException ex) {
-                
-            }
-         
         }
     }
     public void handleMessage(Message message){
@@ -77,32 +71,30 @@ public class connectClient extends JFrame{
         }
         
     }
-    
-    
     public void setupUI(){
-        this.setSize(this.WIDTH, this.HEIGHT);
-        addElements();
-        this.setVisible(true);
-        this.setTitle("Client: Raining Words");  
-        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent we)
-            { 
-                String ObjButtons[] = {"Yes","No"};
-                int PromptResult = JOptionPane.showOptionDialog(null,"Are you sure you want to exit?","Online Examination System",
-                		JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
-                if(PromptResult==JOptionPane.YES_OPTION)
-                {
-                	sendDataToServer(-1, "DISCONNECT");
-                    shutdownSequence();
-                    
-                }
-            }
+    	JPanel panel2 = new JPanel();
+        JButton disconnect = new JButton("Disconnect");
+        JButton test = new JButton("Test");
+        panel2.add(disconnect);
+        panel2.add(test);
+        
+        frame.setContentPane(panel2);
+		frame.revalidate();
+		
+		disconnect.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				shutdownSequence();
+			}
+        });
+		test.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				System.out.println("Test Herro");
+			}
         });
     }
     public void shutdownSequence(){
         try {
+        	sendDataToServer(-1, "DISCONNECT");
             this.close = true;
             this.input.close();
             this.writer.flush();
@@ -110,36 +102,28 @@ public class connectClient extends JFrame{
             try {
                 Thread.sleep(100);
                 this.socket.close();
-                System.exit(0);
             } catch (InterruptedException ex) {
                 Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (IOException ex) {
             Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NullPointerException ne) {
         }
     }
-    
-    public void addElements(){
-    	JPanel panel = new JPanel();
-        JButton nameButton = new JButton("OK");
-        JTextField usernameField = new JTextField();
-        JLabel userLabel = new JLabel("Username:");
-        usernameField.setText("");
-        usernameField.setPreferredSize(new Dimension(200, 20));
-        panel.add(userLabel);
-        panel.add(usernameField);
-        panel.add(nameButton);
-        this.getContentPane().add(panel);
-        
-        nameButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				sendDataToServer(1, usernameField.getText());
-                System.out.println("Username set");
-			}
-        });
-    }
-    
-    public static void main(String[] args){
-    	connectClient client = new connectClient();
-    }
+
+	@Override
+	public void run() {
+		while(!close){
+            try {
+                Message message = (Message) this.input.readObject();
+                handleMessage(message);
+            } catch (IOException ex) {
+                
+            } catch (ClassNotFoundException ex) {
+                
+            }
+        }
+		frame.setContentPane(old);
+		frame.revalidate();
+	}
 }
