@@ -62,27 +62,31 @@ public class clientManager extends JFrame {
     	JPanel logoPane = new JPanel(new GridBagLayout());
     	JPanel menuPane = new JPanel(new GridBagLayout());
     	JPanel settingsPane = new JPanel(new GridBagLayout());
+    	JPanel spacerPane = new JPanel(new GridBagLayout());
     	GridBagConstraints gbc = new GridBagConstraints();
     	
-    	/*BufferedImage image = null;
+    	BufferedImage image = null;
     	try {
-    	    //image = ImageIO.read(new File("/raining.png"));
+    	    image = ImageIO.read(new File("RainingClient/Assets/raining.png"));
     	} catch (IOException ex) {
     	    ex.printStackTrace();
     	}
     	
-    	JLabel picLabel = new JLabel(new ImageIcon(image));
-    	logoPane.add(picLabel);*/
-    	
-        JButton saveBtn = new JButton("Save");
+    	try{
+    		JLabel picLabel = new JLabel(new ImageIcon(image));
+    	    logoPane.add(picLabel);
+    	} catch (Exception ex) {
+    	    ex.printStackTrace();
+    	}
         JButton playBtn = new JButton("Play");
-        JButton settingsBtn = new JButton("Settings");
+        JButton settingsBtn = new JButton("Settings"); 
+        JButton saveBtn = new JButton("Save"); 
+        JButton closeBtn = new JButton("Close");
         JTextField usernameField = new JTextField();
         JLabel userLabel = new JLabel("User: " + username);
         JLabel settingsLabel = new JLabel("Settings");
         JLabel settingNameLabel = new JLabel("Username:");
         
-        usernameField.setText("");
         usernameField.setPreferredSize(new Dimension(200, 20));
         
         gbc.anchor = GridBagConstraints.CENTER;
@@ -94,39 +98,34 @@ public class clientManager extends JFrame {
         gbc.gridy = 0;
         headerPane.add(userLabel, gbc);
         gbc.gridx = 0;
-        gbc.gridy = 0;
         menuPane.add(playBtn, gbc);
-        gbc.gridx = 0;
         gbc.gridy = 1;
         menuPane.add(settingsBtn, gbc);
         
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridx = 0;
         gbc.gridy = 0;
         settingsPane.add(settingsLabel, gbc);
-        gbc.gridx = 0;
         gbc.gridy = 1;
         settingsPane.add(settingNameLabel, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 1;
         settingsPane.add(usernameField, gbc);
         gbc.anchor = GridBagConstraints.EAST;
-        gbc.gridx = 1;
         gbc.gridy = 2;
+        settingsPane.add(closeBtn, gbc);
+        gbc.gridx = 0;
         settingsPane.add(saveBtn, gbc);
         
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.weighty = 0.7;
+        gbc.weighty = 1;
         gbc.weightx = 1;
+        gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 3;
         panel.add(headerPane, gbc);
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.gridy = 1;
         panel.add(logoPane, gbc);
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weighty = 1;
-        gbc.weightx = 0.5;
         gbc.gridy = 2;
         gbc.gridwidth = 1;
         panel.add(menuPane, gbc);
@@ -135,8 +134,10 @@ public class clientManager extends JFrame {
         gbc.weightx = 0;
         gbc.gridy = 3;
         panel.add(settingsPane, gbc);
+        spacerPane.setPreferredSize(new Dimension(300, 100));
+        panel.add(spacerPane, gbc);
         
-        panel.setBackground(Color.BLUE);
+        settingsPane.setVisible(false);
         
         frame.setContentPane(panel);
 		frame.revalidate();
@@ -145,6 +146,13 @@ public class clientManager extends JFrame {
 			public void actionPerformed(ActionEvent e){
 				username = usernameField.getText();
 				userLabel.setText("User: " + username);
+		        settingsPane.setVisible(false);
+			}
+        });
+        closeBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				usernameField.setText("");
+		        settingsPane.setVisible(false);
 			}
         });
         playBtn.addActionListener(new ActionListener(){
@@ -152,6 +160,12 @@ public class clientManager extends JFrame {
 				client = new connectClient(frame, username);
 	            Thread thread = new Thread(client);
 	            thread.start();
+			}
+        });
+        settingsBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				usernameField.setText(username);
+				settingsPane.setVisible(true);
 			}
         });
     }

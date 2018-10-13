@@ -1,5 +1,10 @@
 package RainingClient;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -72,23 +77,68 @@ public class connectClient implements Runnable{
         
     }
     public void setupUI(){
-    	JPanel panel2 = new JPanel();
-        JButton disconnect = new JButton("Disconnect");
-        JButton test = new JButton("Test");
-        panel2.add(disconnect);
-        panel2.add(test);
+    	JPanel panel = new JPanel(new GridBagLayout());
+    	JPanel headerPane = new JPanel(new GridBagLayout());
+    	JPanel gamePane = new JPanel();
+    	JPanel inputPane = new JPanel(new GridBagLayout());
+    	GridBagConstraints gbc = new GridBagConstraints();
+    	
+    	JLabel scoreLabel = new JLabel("Score: 999");
+    	JLabel timeLabel = new JLabel("Time: 23 sec");
+        JButton disconnectBtn = new JButton("Disconnect");
+        JTextField wordInput = new JTextField();
         
-        frame.setContentPane(panel2);
+        gamePane.setPreferredSize(new Dimension(300, 300));
+        wordInput.setPreferredSize(new Dimension(100, 30));
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        headerPane.add(timeLabel, gbc);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1;
+        gbc.gridx = 1;
+        headerPane.add(disconnectBtn, gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0;
+        gbc.gridx = 2;
+        headerPane.add(scoreLabel, gbc);
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1;
+        gbc.gridx = 0;
+        inputPane.add(wordInput, gbc);
+        
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weightx = 0;
+        gbc.gridy = 0;
+        panel.add(headerPane, gbc);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weighty = 1;
+        gbc.weightx = 1;
+        gbc.gridy = 1;
+        panel.add(gamePane, gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.weightx = 0;  
+        gbc.weighty = 0; 
+        gbc.gridy = 2;
+        panel.add(inputPane, gbc);
+        
+        gamePane.setBorder(BorderFactory.createLineBorder(Color.black));
+        
+        frame.setContentPane(panel);
 		frame.revalidate();
 		
-		disconnect.addActionListener(new ActionListener(){
+		disconnectBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				shutdownSequence();
-			}
-        });
-		test.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				System.out.println("Test Herro");
 			}
         });
     }
