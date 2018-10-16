@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
@@ -33,6 +35,8 @@ public class connectClient implements Runnable{
     
     JFrame frame;
     JPanel old;
+    
+    int counter = 0;
     
     public connectClient(JFrame frame, String username){
     	this.frame = frame;
@@ -136,9 +140,29 @@ public class connectClient implements Runnable{
         frame.setContentPane(panel);
 		frame.revalidate();
 		
+    	clientGame game = new clientGame(gamePane, scoreLabel);
+        Thread thread = new Thread(game);
+        thread.start();
+        
+        wordInput.addKeyListener(new KeyListener(){
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+        	}
+
+        	@Override
+        	public void keyReleased(KeyEvent e) {
+        		game.compareWord(wordInput.getText(), wordInput);
+        	}
+
+        	@Override
+        	public void keyTyped(KeyEvent e) {
+        	}
+        });
 		disconnectBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				shutdownSequence();
+				//shutdownSequence();
+				game.addWord("test" + counter);
+				counter++;
 			}
         });
     }

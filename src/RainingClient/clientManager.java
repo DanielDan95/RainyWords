@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+@SuppressWarnings("serial")
 public class clientManager extends JFrame {
 
 	JFrame frame = this;
@@ -171,6 +172,7 @@ public class clientManager extends JFrame {
     }
 	
 	public static void main(String[] args) {
+		@SuppressWarnings("unused")
 		clientManager asd = new clientManager();
 	}
 }
