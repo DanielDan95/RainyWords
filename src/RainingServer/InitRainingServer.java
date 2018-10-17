@@ -7,6 +7,7 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -33,6 +34,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
     ArrayList<Thread> threads;
     ArrayList<handleClient> clients;
     ServerSocket server;
+
     
     public InitRainingServer(){
         this.threads = new ArrayList<Thread>();
@@ -58,17 +60,52 @@ public class InitRainingServer extends JFrame implements ActionListener{
                 Thread thread = new Thread(client);
                 this.threads.add(thread);
                 thread.start();
-                
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    for(int i = 0; i < clients.size(); i++) {
+                        if(clients.get(i).close == true)    {
+                            clients.remove(clients.get(i));
+                        }
+                    }
+                    matching();
+                }
+                catch(Exception e)   {
+                    System.out.println("Matchin Error");
+                }
+
             } catch (IOException ex) {
                 Logger.getLogger(InitRainingServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         
         }
     }
-    
 
-    
-    
+    public void matching()   {
+        if(this.clients.size() %2 == 0)    {
+            int client1 = -1;
+            int client2 = -1;
+            for(int i = 0; i < clients.size(); i++) {
+                if(clients.get(i).getUserStatus().equals("Idle")) {
+                    if(client1 == -1)    {
+                        client1 = i;
+                    }
+                    else {
+                        client2 = i;
+                        break;
+                    }
+                }
+            }
+            System.out.println("KOM HIT");
+            clients.get(client1).changeState(2);
+            clients.get(client2).changeState(2);
+            matchStart(client1, client2);
+        }
+    }
+
+    public void matchStart(int client1, int client2)    {
+        clients.get(client1).sendMessage(1, clients.get(client2).getName());
+        clients.get(client2).sendMessage(1, clients.get(client1).getName());
+    }
 
 
 
@@ -100,7 +137,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
         });
         
         
-         jScrollPane1 = new JScrollPane();
+        jScrollPane1 = new JScrollPane();
         textField = new JTextArea();
         inputStopField = new JTextField();
         stopButton = new JButton();
@@ -149,8 +186,6 @@ public class InitRainingServer extends JFrame implements ActionListener{
         this.add(textField);
         
         this.setVisible(true);
-        
-        
         
     }
     private void showLogger(String text){

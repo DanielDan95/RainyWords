@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -74,7 +75,35 @@ public class connectClient implements Runnable{
             case -1:
                 shutdownSequence();
                 break;
-            
+            case 1:
+                int x = 5;
+                try {
+                    for(int i = 0; i < 5; i++)  {
+                        JOptionPane jop = new JOptionPane("Matched with: " + message.getMessage() + "\n" + "game starts in: " + x
+                                , JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+                        frame.add(jop);
+                        JDialog dialog = new JDialog();
+                        dialog.setModal(true);
+                        dialog.setContentPane(jop);
+                        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(frame);
+                        Timer timer = new Timer(1000, new AbstractAction() {
+                            @Override
+                            public void actionPerformed(ActionEvent ae) {
+                                dialog.dispose();
+                            }
+                        });
+                        timer.start();
+                        dialog.setVisible(true);
+                        x--;
+                    }
+                    sendDataToServer(2, "Has entered game");
+
+                }
+                catch (Exception e) {
+                    System.out.println("timer fault");
+                }
             default:
                 System.out.println("Can not understand Status from server: " + message.getStatus());
         }
@@ -160,9 +189,9 @@ public class connectClient implements Runnable{
         });
 		disconnectBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				//shutdownSequence();
-				game.addWord("test" + counter);
-				counter++;
+				shutdownSequence();
+				//game.addWord("test" + counter);
+				//counter++;
 			}
         });
     }
