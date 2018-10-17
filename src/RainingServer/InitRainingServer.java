@@ -32,11 +32,13 @@ public class InitRainingServer extends JFrame implements ActionListener{
     //Clients
     ArrayList<Thread> threads;
     ArrayList<handleClient> clients;
+    ArrayList<Game> gameThread;
     ServerSocket server;
     
     public InitRainingServer(){
         this.threads = new ArrayList<Thread>();
         this.clients = new ArrayList<handleClient>();
+        this.gameThread = new ArrayList<Game>();
         setupUI();
         System.out.println("Server is up and running on port: " + this.PORT);
         
@@ -201,7 +203,9 @@ public class InitRainingServer extends JFrame implements ActionListener{
     private void showAllOnlineUsers(){
         String responseText = "Online \n---------------\n";
         for(int i = 0; i < clients.size(); i++){
-            responseText+= clients.get(i).getName() + " -- " + clients.get(i).getUserStatus() + "\n";
+            if(!clients.get(i).isShutdown){
+                responseText+= clients.get(i).getName() + " -- " + clients.get(i).getUserStatus() + "\n";
+            }
         }
         if(clients.size() == 0){
             responseText += "No Active Users";

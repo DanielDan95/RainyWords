@@ -94,7 +94,8 @@ public class clientGame implements Runnable{
 			word obj = iter.next();
 			obj.addYpos(deltaTime *  obj.getSpeed());
 			if (obj.getYpos() > canvas.getHeight()+30) {
-				iter.remove();
+                            obj.setYpos(0);
+                            //iter.remove();
 			}
 		}
 		wordList.addAll(wordsToAdd);

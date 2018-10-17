@@ -9,6 +9,8 @@ public class handleClient implements Runnable{
     Socket client;
     String name = "Anonymous";
     String userStatus = "Idle";
+    boolean isShutdown = false;
+    Game game;
 
     
     ObjectOutputStream writer;
@@ -27,7 +29,13 @@ public class handleClient implements Runnable{
         }
     }
 
-   
+    public void setGame(Game game){
+        this.game = game;
+    }
+    public void removeGame(){
+        this.game = null;
+    }
+    
     public void run() {
         System.out.println("Client Connected!");
         while(!this.close){
@@ -98,7 +106,8 @@ public class handleClient implements Runnable{
     
     //This Method shutdowns all streams and inputs is if its server or client that initialized shutdown
     public void shutdownSequence(boolean isServerCall){
-         System.out.println("ShutdownSequence Called");
+        this.isShutdown = true;
+        System.out.println("ShutdownSequence Called");
         if(isServerCall){
             try {
                 this.sendMessage(-1, "DISCONNECT");

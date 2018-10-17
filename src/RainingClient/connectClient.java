@@ -162,7 +162,9 @@ public class connectClient implements Runnable{
 			public void actionPerformed(ActionEvent e){
 				//shutdownSequence();
 				game.addWord("test" + counter);
-				counter++;
+                                counter++;
+                                
+                                
 			}
         });
     }
