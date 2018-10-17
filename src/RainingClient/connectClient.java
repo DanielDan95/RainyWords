@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.embed.swing.JFXPanel;
 
 import RainingServer.Message;
 
@@ -78,6 +81,14 @@ public class connectClient implements Runnable{
             case 1:
                 int x = 5;
                 try {
+                    //Ta bort detta sen
+                    /////////////////////////////////////////////////////////
+                    final JFXPanel fxPanel = new JFXPanel();
+                    String bip = "src\\RainingClient\\assets\\music.mp3";
+                    Media hit = new Media(new File(bip).toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(hit);
+                    mediaPlayer.play();
+                    /////////////////////////////////////////////////////////
                     for(int i = 0; i < 5; i++)  {
                         JOptionPane jop = new JOptionPane("Matched with: " + message.getMessage() + "\n" + "game starts in: " + x
                                 , JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);

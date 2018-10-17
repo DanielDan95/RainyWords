@@ -76,7 +76,6 @@ public class InitRainingServer extends JFrame implements ActionListener{
             } catch (IOException ex) {
                 Logger.getLogger(InitRainingServer.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
         }
     }
 
