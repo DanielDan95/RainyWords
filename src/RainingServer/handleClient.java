@@ -62,6 +62,8 @@ public class handleClient implements Runnable{
             	System.out.println("HERRO name");
                 this.name = message.getMessage();
                 break;
+            case 2:
+                changeState(3);
             
             default:
                 System.out.println("Could not handle Message with status: " + message.getStatus());
@@ -70,7 +72,6 @@ public class handleClient implements Runnable{
     
     
     }
-    
     
     
     //This method create a Message Object and send it to Client
