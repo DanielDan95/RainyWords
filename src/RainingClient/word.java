@@ -1,11 +1,14 @@
 package RainingClient;
 
+import java.awt.Color;
+
 public class word {
 	
 	String word;
 	double xpos;
 	double ypos;
 	double speed;
+        private Color color;
 	
 	public word(String word, double xpos, double ypos, double speed) {
 		super();
@@ -13,7 +16,13 @@ public class word {
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.speed = speed/1000;
-	}
+                this.color = new Color((int)(Math.random() * 0x1000000));
+        }
+
+        public Color getColor() {
+            return color;
+        }
+        
 
 	public double getYpos() {
 		return ypos;

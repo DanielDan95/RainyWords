@@ -98,6 +98,7 @@ public class clientGame implements Runnable{
                 this.lock.lock();
 		for (word obj: wordList) {
 			char[] ch = obj.getWord().toCharArray();
+                        g.setColor(obj.getColor());
 			g.drawChars(ch, 0, ch.length, (int)obj.getXpos(), (int)obj.getYpos());
 		}
                 this.lock.unlock();

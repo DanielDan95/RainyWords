@@ -55,20 +55,7 @@ public class LibraryGen extends JFrame implements ActionListener{
         String message = text.getText();
         text.setText("");
         
-        int count = 0;
-        
-        while(count <= 100000){
-            String word = ""+count;
-            count++;
-            this.saveWord(word);
-            System.out.println(count);
-        }
-        System.out.println("Done with Number");
-        this.writer.close();
-        System.exit(0);
-        
-        
-        /*try {
+        try {
             int i = Integer.parseInt(message);
             if(i == 0){
                 this.writer.close();
@@ -98,7 +85,7 @@ public class LibraryGen extends JFrame implements ActionListener{
             
             
             
-        }*/
+        }
         
         
     }
