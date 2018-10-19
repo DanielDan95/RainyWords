@@ -13,22 +13,26 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class clientGame implements Runnable{
-	Canvas canvas;
+	ReentrantLock lock;
+        Canvas canvas;
 	BufferStrategy bufferStrategy;
         
         ObjectOutputStream writer;
 
-    
+        private int id = 0;
 	
 	ArrayList<word> wordList = new ArrayList<word>();
 	ArrayList<word> wordsToAdd = new ArrayList<word>();
 	int score = 0;
+        
+        
 	
 	Font wordFont = new Font("TimesRoman", Font.PLAIN, 20);
 	JLabel scoreL;
@@ -36,7 +40,8 @@ public class clientGame implements Runnable{
 	Random rand = new Random();
 	
 	public clientGame(JPanel panel, JLabel scoreLabel){
-		canvas = new Canvas();
+		lock = new ReentrantLock();
+                canvas = new Canvas();
 		canvas.setBounds(0, 0, panel.getWidth()-10, panel.getHeight()-10);
 		canvas.setIgnoreRepaint(true);
 		panel.add(canvas);
@@ -90,13 +95,16 @@ public class clientGame implements Runnable{
 	protected void render(Graphics2D g){
 		g.setColor(Color.BLACK);
 		g.setFont(wordFont);
+                this.lock.lock();
 		for (word obj: wordList) {
 			char[] ch = obj.getWord().toCharArray();
 			g.drawChars(ch, 0, ch.length, (int)obj.getXpos(), (int)obj.getYpos());
 		}
+                this.lock.unlock();
 	}
 	
 	protected void update(int deltaTime){
+                this.lock.lock();
 		for (Iterator<word> iter = wordList.iterator(); iter.hasNext();) {
 			word obj = iter.next();
 			obj.addYpos(deltaTime *  obj.getSpeed());
@@ -105,14 +113,26 @@ public class clientGame implements Runnable{
                             //iter.remove();
 			}
 		}
+                
 		wordList.addAll(wordsToAdd);
 		wordsToAdd.clear();
-		scoreL.setText("Score: " + score);
+		this.lock.unlock();
 	}
-	
+
+        public int getId() {
+            return id;
+        }
+	public void gameTimeEnd(){
+            this.lock.lock();
+            wordList.clear();
+            this.lock.unlock();
+        
+        }
 	public void addWord(String word){
+                this.lock.lock();
 		wordsToAdd.add(new word(word, rand.nextInt(canvas.getWidth() - (word.length() * 16)), canvas.getY(), (rand.nextInt(100) + 50)));
-	}
+                this.lock.unlock();
+        }
 	public void setWriter(ObjectOutputStream writer) {
             this.writer = writer;
         }
@@ -129,23 +149,28 @@ public class clientGame implements Runnable{
             }
         }
         public void removeWord(String wordRemove){
-            for (Iterator<word> iter = wordList.iterator(); iter.hasNext();) {
-			word obj = iter.next();
-			if(obj.getWord().equals(wordRemove)){
-                            iter.remove();
-                            
-		    	
-		    }
-		}
+            this.lock.lock();
+            for(int t = 0; t < wordList.size(); t++){
+                if(wordList.get(t).getWord().equals(wordRemove)){
+                    wordList.remove(t);
+                }
+            }
+            this.lock.unlock();
+            
+            
         }
 	
 	public void compareWord(String written, JTextField wordInput){
-		for (Iterator<word> iter = wordList.iterator(); iter.hasNext();) {
-			word obj = iter.next();
-			if(obj.getWord().equals(written)){
-                            sendDataToServer(101, written);
-                            wordInput.setText("");
-		    }
-		}
+            this.lock.lock();
+            for(int t = 0; t < wordList.size(); t++){
+                if(wordList.get(t).getWord().equals(written)){
+                    sendDataToServer(101, this.id+" "+written);
+                    wordInput.setText("");
+                }
+            }
+            this.lock.unlock();
 	}
+        public void setId(int id){
+            this.id = id;
+        }
 }

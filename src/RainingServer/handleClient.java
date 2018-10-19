@@ -10,7 +10,7 @@ public class handleClient implements Runnable{
     String name = "Anonymous";
     String userStatus = "Idle";
     boolean isShutdown = false;
-    Game game;
+    Game game = null;
 
     
     ObjectOutputStream writer;
@@ -56,6 +56,9 @@ public class handleClient implements Runnable{
         switch(message.getStatus()){
             case -1:
             	System.out.println("HERRO dis");
+                if(this.game != null){
+                    this.game.clientShutdownGame(message.getMessage());
+                }
                 shutdownSequence(false);
                 break;
             case 1:
@@ -125,10 +128,8 @@ public class handleClient implements Runnable{
                     this.writer.close();
                     this.client.close();
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(handleClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } catch (IOException ex) {
-                Logger.getLogger(handleClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         else{

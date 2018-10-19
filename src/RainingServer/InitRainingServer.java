@@ -26,6 +26,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
     private JScrollPane jScrollPane1;
     private JLabel companyName;
     private JTextArea textField;
+    private JScrollPane scroll;
     
     //Settings Connection
     final int PORT = 23456;
@@ -37,6 +38,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
     ArrayList<Game> gameList;
     ServerSocket server;
 
+    
     
     public InitRainingServer(){
         this.threads = new ArrayList<Thread>();
@@ -109,6 +111,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
         clients.get(client1).sendMessage(1, clients.get(client2).getName());
         clients.get(client2).sendMessage(1, clients.get(client1).getName());
         Game game = new Game(clients.get(client1), clients.get(client2));
+        
         this.gameList.add(game);
         Thread th = new Thread(game);
         gameThread.add(th);
@@ -145,7 +148,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
         });
         
         
-        jScrollPane1 = new JScrollPane();
+        
         textField = new JTextArea();
         inputStopField = new JTextField();
         stopButton = new JButton();
@@ -154,9 +157,10 @@ public class InitRainingServer extends JFrame implements ActionListener{
         companyName = new JLabel();
 
        
-
+        
         textField.setColumns(20);
         textField.setRows(5);
+        jScrollPane1 = new JScrollPane(textField);
         jScrollPane1.setViewportView(textField);
       
 
@@ -176,8 +180,8 @@ public class InitRainingServer extends JFrame implements ActionListener{
 
         this.setLayout(null);
         
-        this.textField.setBounds(10, 10, 500, 340);
-        this.textField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        this.jScrollPane1.setBounds(10, 10, 500, 340);
+        this.jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         this.inputStopField.setBounds(10, 370, 100, 20);
         
@@ -191,7 +195,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
         this.add(onlineButton);
         this.add(stopButton);
         this.add(inputStopField);
-        this.add(textField);
+        this.add(jScrollPane1);
         
         this.setVisible(true);
         
@@ -216,25 +220,24 @@ public class InitRainingServer extends JFrame implements ActionListener{
     }
     private void stopGame(String nr){
         int number = 0;
-        boolean found = false;
+        
+        System.out.println("BEFORE NUMBER:"+nr+":");
         try{
             number = Integer.parseInt(nr);
-            found = true;
+            System.out.println("Number: " + number);
+            for(int t = 0; t < clients.size(); t++){
+                if(clients.get(t).game.getId()== number){
+                    System.out.println("found game: " + number);
+                    clients.get(t).game.shutdownGame();
+                    System.out.println("Game " + number + " is shutting down");
+                    break;
+                }
+            }
         }catch(Exception ex){
             showLogger("Cant find that Game ID");
             
         }
-        if(found){
-            /*
-            Här ska Game instansen med id i variable number stängas ner
-            Denna del görs när en Game Objekt existerar
-            
-            
-            
-            
-            */
-            showLogger("Stops Game with id: " + number);
-        }
+
         
     }
     
@@ -245,6 +248,9 @@ public class InitRainingServer extends JFrame implements ActionListener{
         String responseText = "Online \n---------------\n";
         for(int i = 0; i < clients.size(); i++){
             if(!clients.get(i).isShutdown){
+                if(clients.get(i).game != null){
+                    responseText+= "Game: " + clients.get(i).game.getId() + " -- ";
+                }
                 responseText+= clients.get(i).getName() + " -- " + clients.get(i).getUserStatus() + "\n";
             }
         }

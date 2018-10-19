@@ -26,6 +26,8 @@ public class connectClient implements Runnable{
     //Settings UI
     final int WIDTH = 1000;
     final int HEIGHT = 700;
+    JLabel timeLabel;
+    JLabel scoreLabel;
     
     //Settings Connection
     final int SERVERPORT = 23456;
@@ -119,19 +121,71 @@ public class connectClient implements Runnable{
                 catch (Exception e) {
                     System.out.println("timer fault");
                 }
+                break;
+            case 9:
+                game.setId(Integer.parseInt(message.getMessage()));
+                break;
             //incoming settings
             case 20:
                 //handleIncomingSettings();
                 break;
+            //call from server that new word incoming
             case 100:
                 incomingWord(message.getMessage());
                 break;
+            //Call from server that Client should delete word
             case 101:
                 removeWord(message.getMessage());
+                break;
+            //Adding score that server calls Client
+            case 105:
+                this.scoreLabel.setText("Score: " + message.getMessage());
+                break;
+                
+            //Call from server to broadcast current timer countdown    
+            case 110:
+                setGameTimer(message.getMessage());
+                break;
+            //Call from server that game is ended and result incoming
+            case 200:
+                showResultTable(message.getMessage());
+                break;
             default:
                 System.out.println("Can not understand Status from server: " + message.getStatus());
         }
         
+    }
+    private void showResultTable(String message){
+        int score1 = Integer.parseInt(message.substring(0, message.indexOf(" ")));     
+        int score2 = Integer.parseInt(message.substring(message.indexOf(" ")+1, message.length()));
+        
+        int yourScore = 0;
+        int opponentScore = 0;
+        if(game.getId() == 1){
+            yourScore = score1;
+            opponentScore = score2;
+        }
+        else if(game.getId() == 2){
+            yourScore = score2;
+            opponentScore = score1;
+        }
+        if(yourScore > opponentScore){
+            JOptionPane.showMessageDialog(frame, "You Won!\nYou: "+ yourScore + " VS Opponent: "+opponentScore );
+        }
+        else if(yourScore < opponentScore){
+            JOptionPane.showMessageDialog(frame, "You Lost!\nYou: "+ yourScore + " VS Opponent: "+opponentScore );
+        }
+        else if(yourScore == opponentScore){
+            JOptionPane.showMessageDialog(frame, "Match is a Tie!\nYou: "+ yourScore + " VS Opponent: "+opponentScore );
+        }
+        
+      
+    
+    }
+    
+    private void setGameTimer(String message){
+        int time = Integer.parseInt(message);
+        this.timeLabel.setText("Time: "+time+" sec left");
     }
     private void removeWord(String wordRemove){
         this.game.removeWord(wordRemove);
@@ -147,8 +201,8 @@ public class connectClient implements Runnable{
     	JPanel inputPane = new JPanel(new GridBagLayout());
     	GridBagConstraints gbc = new GridBagConstraints();
     	
-    	JLabel scoreLabel = new JLabel("Score: 999");
-    	JLabel timeLabel = new JLabel("Time: 23 sec");
+    	scoreLabel = new JLabel("Score: 0");
+    	timeLabel = new JLabel("Time: 300 sec left");
         JButton disconnectBtn = new JButton("Disconnect");
         JTextField wordInput = new JTextField();
         
@@ -221,26 +275,24 @@ public class connectClient implements Runnable{
 		disconnectBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				shutdownSequence();
-				//game.addWord("test" + counter);
-				//counter++;
+				
 			}
         });
     }
     public void shutdownSequence(){
         try {
-        	sendDataToServer(-1, "DISCONNECT");
+        	sendDataToServer(-1, game.getId() + " DISCONNECT");
             this.close = true;
             this.input.close();
             this.writer.flush();
             this.writer.close();
+            
             try {
                 Thread.sleep(100);
                 this.socket.close();
             } catch (InterruptedException ex) {
-                Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (IOException ex) {
-            Logger.getLogger(connectClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NullPointerException ne) {
         }
     }
