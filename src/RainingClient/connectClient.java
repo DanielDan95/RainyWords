@@ -37,6 +37,8 @@ public class connectClient implements Runnable{
     
     boolean close = true;
     
+    private clientGame game;
+    
     JFrame frame;
     JPanel old;
     
@@ -50,6 +52,7 @@ public class connectClient implements Runnable{
             this.socket = new Socket(HOST, SERVERPORT);
             this.writer = new ObjectOutputStream(this.socket.getOutputStream());
             this.input = new ObjectInputStream(this.socket.getInputStream());
+            this.game.setWriter(writer);
         	close = false;
         	sendDataToServer(1, username);
         }
@@ -87,6 +90,7 @@ public class connectClient implements Runnable{
                     String bip = "src\\RainingClient\\assets\\music.mp3";
                     Media hit = new Media(new File(bip).toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(hit);
+                    
                     mediaPlayer.play();
                     /////////////////////////////////////////////////////////
                     for(int i = 0; i < 5; i++)  {
@@ -115,10 +119,26 @@ public class connectClient implements Runnable{
                 catch (Exception e) {
                     System.out.println("timer fault");
                 }
+            //incoming settings
+            case 20:
+                //handleIncomingSettings();
+                break;
+            case 100:
+                incomingWord(message.getMessage());
+                break;
+            case 101:
+                removeWord(message.getMessage());
             default:
                 System.out.println("Can not understand Status from server: " + message.getStatus());
         }
         
+    }
+    private void removeWord(String wordRemove){
+        this.game.removeWord(wordRemove);
+    
+    }
+    private void incomingWord(String word){
+        this.game.addWord(word);
     }
     public void setupUI(){
     	JPanel panel = new JPanel(new GridBagLayout());
@@ -180,7 +200,7 @@ public class connectClient implements Runnable{
         frame.setContentPane(panel);
 		frame.revalidate();
 		
-    	clientGame game = new clientGame(gamePane, scoreLabel);
+    	game = new clientGame(gamePane, scoreLabel);
         Thread thread = new Thread(game);
         thread.start();
         

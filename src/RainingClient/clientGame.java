@@ -1,5 +1,6 @@
 package RainingClient;
 
+import RainingServer.Message;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
@@ -7,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -18,6 +21,10 @@ import javax.swing.JTextField;
 public class clientGame implements Runnable{
 	Canvas canvas;
 	BufferStrategy bufferStrategy;
+        
+        ObjectOutputStream writer;
+
+    
 	
 	ArrayList<word> wordList = new ArrayList<word>();
 	ArrayList<word> wordsToAdd = new ArrayList<word>();
@@ -106,18 +113,38 @@ public class clientGame implements Runnable{
 	public void addWord(String word){
 		wordsToAdd.add(new word(word, rand.nextInt(canvas.getWidth() - (word.length() * 16)), canvas.getY(), (rand.nextInt(100) + 50)));
 	}
-	
+	public void setWriter(ObjectOutputStream writer) {
+            this.writer = writer;
+        }
 	public void addScore(){
 		score++;
 	}
+        private void sendDataToServer(int status, String toSend) {
+            try {
+                Message message = new Message(status,toSend);
+                this.writer.writeObject(message);
+                System.out.printf("Sent message to server: %s\n", toSend);
+            }catch (Exception ex) {
+                System.out.println("CRASHHs");
+            }
+        }
+        public void removeWord(String wordRemove){
+            for (Iterator<word> iter = wordList.iterator(); iter.hasNext();) {
+			word obj = iter.next();
+			if(obj.getWord().equals(wordRemove)){
+                            iter.remove();
+                            
+		    	
+		    }
+		}
+        }
 	
 	public void compareWord(String written, JTextField wordInput){
 		for (Iterator<word> iter = wordList.iterator(); iter.hasNext();) {
 			word obj = iter.next();
 			if(obj.getWord().equals(written)){
-		    	iter.remove();
-		    	wordInput.setText("");
-		    	addScore();
+                            sendDataToServer(101, written);
+                            wordInput.setText("");
 		    }
 		}
 	}

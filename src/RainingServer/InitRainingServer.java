@@ -33,14 +33,16 @@ public class InitRainingServer extends JFrame implements ActionListener{
     //Clients
     ArrayList<Thread> threads;
     ArrayList<handleClient> clients;
-    ArrayList<Game> gameThread;
+    ArrayList<Thread> gameThread;
+    ArrayList<Game> gameList;
     ServerSocket server;
 
     
     public InitRainingServer(){
         this.threads = new ArrayList<Thread>();
         this.clients = new ArrayList<handleClient>();
-        this.gameThread = new ArrayList<Game>();
+        this.gameThread = new ArrayList<Thread>();
+        this.gameList = new ArrayList<Game>();
         setupUI();
         System.out.println("Server is up and running on port: " + this.PORT);
         
@@ -106,6 +108,11 @@ public class InitRainingServer extends JFrame implements ActionListener{
     public void matchStart(int client1, int client2)    {
         clients.get(client1).sendMessage(1, clients.get(client2).getName());
         clients.get(client2).sendMessage(1, clients.get(client1).getName());
+        Game game = new Game(clients.get(client1), clients.get(client2));
+        this.gameList.add(game);
+        Thread th = new Thread(game);
+        gameThread.add(th);
+        th.start();
     }
 
 

@@ -64,6 +64,12 @@ public class handleClient implements Runnable{
                 break;
             case 2:
                 changeState(3);
+                break;
+            case 21:
+            case 22:
+            case 101:
+                this.game.handleCommands(message);
+                break;
             
             default:
                 System.out.println("Could not handle Message with status: " + message.getStatus());

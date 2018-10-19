@@ -18,6 +18,7 @@ public class Game implements Runnable{
     //Game
     private int id;
     private GameSettings settings;
+    private Library library;
     private int timer;
     
     //Ready Checks
@@ -36,9 +37,13 @@ public class Game implements Runnable{
         this.player2 = player2;
         this.settings = new GameSettings();
         this.id = (int) (Math.random()*1000)+1;
+        this.library = new Library("swedish");
         
         this.player1.setGame(this);
         this.player2.setGame(this);
+        this.sendSettings();
+        
+        
     }
     
     
@@ -50,7 +55,7 @@ public class Game implements Runnable{
         this.player2.sendMessage(status, message);
         
     }
-    private void handleCommands(Message message){
+    public void handleCommands(Message message){
         switch(message.getStatus()){
             case 20:
                 sendSettings();
@@ -65,13 +70,16 @@ public class Game implements Runnable{
                 break;
             case 101:
                 validateWord(message.getMessage());
+                break;
+            
                 
         }
     
     }
     public void validateWord(String message){
-        int playerId = Integer.parseInt(message.substring(message.indexOf("="+1), message.indexOf(" ")));
-        message = message.substring(message.indexOf(" "+1), message.length());
+        //int playerId = Integer.parseInt(message.substring(message.indexOf("="+1), message.indexOf(" ")));
+        //message = message.substring(message.indexOf(" "+1), message.length());
+        int playerId = 1;
         String word = message;
         try {
             for(int i = 0; i < this.wordList.size(); i++){
@@ -84,7 +92,7 @@ public class Game implements Runnable{
                     else if(playerId == 2){
                         score2 += points;
                     }
-                    broadcast(102, word);
+                    broadcast(101, word);
                 }
             }
         } catch (Exception e) {
@@ -104,6 +112,7 @@ public class Game implements Runnable{
         }
         if(ready1 && ready2){
             this.gameStarter = true;
+            this.library = new Library(settings.getLanguage());
         }
     }
     
@@ -122,14 +131,14 @@ public class Game implements Runnable{
     
     @Override
     public void run() {
-        while(!gameStarter){
+       /* while(!gameStarter){
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-        }
+        }*/
         while(timer < settings.getTime()){
             try {
                 Thread.sleep(1000);
@@ -137,8 +146,11 @@ public class Game implements Runnable{
             } catch (InterruptedException ex) {
                 Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
             }
+            System.out.println("pumpa ord");
             for(int t = 0; t < 2*settings.getDifficulty();t++){
-                broadcast(100, word);
+                String currentWord = this.library.getRandomWord();
+                this.wordList.add(currentWord);
+                broadcast(100, currentWord);
             }
         }
     

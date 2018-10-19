@@ -68,7 +68,7 @@ public class clientManager extends JFrame {
     	
     	BufferedImage image = null;
     	try {
-    	    image = ImageIO.read(new File("RainingClient/Assets/raining.png"));
+    	    image = ImageIO.read(new File("src/RainingClient/Assets/raining.png"));
     	} catch (IOException ex) {
     	    ex.printStackTrace();
     	}
