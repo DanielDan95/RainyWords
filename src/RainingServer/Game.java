@@ -39,7 +39,7 @@ public class Game implements Runnable{
         this.player2 = player2;
         this.settings = new GameSettings();
         this.id = (int) (Math.random()*1000)+1;
-        this.library = new Library("swedish");
+        this.library = new Library(settings.getLanguage());
         
         this.player1.setGame(this);
         this.player2.setGame(this);

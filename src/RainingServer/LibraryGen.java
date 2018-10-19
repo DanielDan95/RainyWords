@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 public class LibraryGen extends JFrame implements ActionListener{
-     final String nameOfFile = "swedish";
+     final String nameOfFile = "number";
      PrintWriter writer;
      JTextField text;
      boolean exitLoop = false;
@@ -54,7 +54,21 @@ public class LibraryGen extends JFrame implements ActionListener{
         exitLoop = false;
         String message = text.getText();
         text.setText("");
-        try {
+        
+        int count = 0;
+        
+        while(count <= 100000){
+            String word = ""+count;
+            count++;
+            this.saveWord(word);
+            System.out.println(count);
+        }
+        System.out.println("Done with Number");
+        this.writer.close();
+        System.exit(0);
+        
+        
+        /*try {
             int i = Integer.parseInt(message);
             if(i == 0){
                 this.writer.close();
@@ -81,14 +95,10 @@ public class LibraryGen extends JFrame implements ActionListener{
                 this.exitLoop = true;
                 System.out.println("Exit Loop");
             }
-            /*try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(LibraryGen.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
             
             
-        }
+            
+        }*/
         
         
     }

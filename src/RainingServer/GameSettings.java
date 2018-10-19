@@ -1,7 +1,7 @@
 package RainingServer;
 public class GameSettings {
     private int time = 300;
-    private String language = "swedish";
+    private String language = "english";
     
     private int difficulty = 1;
     
