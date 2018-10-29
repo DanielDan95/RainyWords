@@ -55,14 +55,12 @@ public class handleClient implements Runnable{
     public void handleMessage(Message message){
         switch(message.getStatus()){
             case -1:
-            	System.out.println("HERRO dis");
                 if(this.game != null){
                     this.game.clientShutdownGame(message.getMessage());
                 }
                 shutdownSequence(false);
                 break;
             case 1:
-            	System.out.println("HERRO name");
                 this.name = message.getMessage();
                 break;
             case 2:

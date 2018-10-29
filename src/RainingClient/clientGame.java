@@ -21,18 +21,16 @@ import javax.swing.JTextField;
 
 public class clientGame implements Runnable{
 	ReentrantLock lock;
-        Canvas canvas;
+    Canvas canvas;
 	BufferStrategy bufferStrategy;
         
-        ObjectOutputStream writer;
+    ObjectOutputStream writer;
 
-        private int id = 0;
+    private int id = 0;
 	
 	ArrayList<word> wordList = new ArrayList<word>();
 	ArrayList<word> wordsToAdd = new ArrayList<word>();
 	int score = 0;
-        
-        
 	
 	Font wordFont = new Font("TimesRoman", Font.PLAIN, 20);
 	JLabel scoreL;

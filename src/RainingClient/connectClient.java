@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.embed.swing.JFXPanel;
@@ -43,8 +46,13 @@ public class connectClient implements Runnable{
     
     JFrame frame;
     JPanel old;
+    JPanel panel;
+    JPanel settingsPane;
+	JPanel gamePane;
     
     int counter = 0;
+    
+    MediaPlayer mediaPlayer;
     
     public connectClient(JFrame frame, String username){
     	this.frame = frame;
@@ -84,44 +92,18 @@ public class connectClient implements Runnable{
                 shutdownSequence();
                 break;
             case 1:
-                int x = 5;
-                try {
-                    //Ta bort detta sen
-                    /////////////////////////////////////////////////////////
-                    final JFXPanel fxPanel = new JFXPanel();
-                    String bip = "src\\RainingClient\\assets\\music.mp3";
-                    Media hit = new Media(new File(bip).toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(hit);
-                    
-                    mediaPlayer.play();
-                    /////////////////////////////////////////////////////////
-                    for(int i = 0; i < 5; i++)  {
-                        JOptionPane jop = new JOptionPane("Matched with: " + message.getMessage() + "\n" + "game starts in: " + x
-                                , JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
-                        frame.add(jop);
-                        JDialog dialog = new JDialog();
-                        dialog.setModal(true);
-                        dialog.setContentPane(jop);
-                        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-                        dialog.pack();
-                        dialog.setLocationRelativeTo(frame);
-                        Timer timer = new Timer(1000, new AbstractAction() {
-                            @Override
-                            public void actionPerformed(ActionEvent ae) {
-                                dialog.dispose();
-                            }
-                        });
-                        timer.start();
-                        dialog.setVisible(true);
-                        x--;
-                    }
-                    sendDataToServer(2, "Has entered game");
-
-                }
-                catch (Exception e) {
-                    System.out.println("timer fault");
-                }
+                System.out.println("Found opponent");
+				frame.setContentPane(settingsPane);
+				frame.revalidate();
                 break;
+            case 2:
+            	System.out.println("Game starting");
+            	game = new clientGame(gamePane, scoreLabel);
+                Thread thread = new Thread(game);
+                thread.start();
+				frame.setContentPane(panel);
+				frame.revalidate();
+				break;
             case 9:
                 game.setId(Integer.parseInt(message.getMessage()));
                 break;
@@ -195,9 +177,9 @@ public class connectClient implements Runnable{
         this.game.addWord(word);
     }
     public void setupUI(){
-    	JPanel panel = new JPanel(new GridBagLayout());
+    	panel = new JPanel(new GridBagLayout());
     	JPanel headerPane = new JPanel(new GridBagLayout());
-    	JPanel gamePane = new JPanel();
+    	gamePane = new JPanel();
     	JPanel inputPane = new JPanel(new GridBagLayout());
     	GridBagConstraints gbc = new GridBagConstraints();
     	
@@ -250,14 +232,109 @@ public class connectClient implements Runnable{
         panel.add(inputPane, gbc);
         
         gamePane.setBorder(BorderFactory.createLineBorder(Color.black));
+
+        JTextField usernameField = new JTextField();
+        usernameField.setPreferredSize(new Dimension(200, 20));
+        settingsPane = new JPanel(new GridBagLayout());
+        JLabel settingsLabel = new JLabel("Settings");
+        JLabel settingNameLabel = new JLabel("Username");
+        JButton settingsPlayBtn = new JButton("Play"); 
+        JButton closeBtn = new JButton("Back");
+        JLabel languageLabel = new JLabel("Language");
+        JLabel diffLabel = new JLabel("Difficulty");
+        JLabel timerLabel = new JLabel("Time Limit");
+        JLabel timeLabel = new JLabel("300");
+
+        String[] languageChoices = {"English", "Svenska"};
+        JComboBox<String> languageList = new JComboBox<String>(languageChoices);
+        languageList.setSelectedIndex(0);
+        languageList.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				switch(languageList.getSelectedIndex()){
+				case 0:
+					//lägg in så spelet är på engelska
+					break;
+				case 1:
+					//lägg in så spelet är på svenska
+					break;
+				}
+			}
+        });
         
-        frame.setContentPane(panel);
-		frame.revalidate();
-		
-    	game = new clientGame(gamePane, scoreLabel);
-        Thread thread = new Thread(game);
-        thread.start();
+        String[] diffChoices = {"Easy", "Medium", "Hard"};
+        JComboBox<String> diffList = new JComboBox<String>(diffChoices);
+        diffList.setSelectedIndex(0);
+        diffList.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				switch(diffList.getSelectedIndex()){
+				case 0:
+					//lägg in så spelet är easy
+					break;
+				case 1:
+					//lägg in så spelet är medium
+					break;
+				case 2:
+					//lägg in så spelet är hard
+					break;
+				}
+			}
+        });
         
+        JSlider slider = new JSlider(JSlider.HORIZONTAL,60,600,300);
+        
+        slider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				timeLabel.setText(""+((JSlider)e.getSource()).getValue());
+			}
+		});
+        
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        settingsPane.add(settingsLabel, gbc);
+        gbc.gridy = 1;
+        settingsPane.add(settingNameLabel, gbc);
+        gbc.gridy = 2;
+        settingsPane.add(diffLabel, gbc);
+        gbc.gridy = 3;
+        settingsPane.add(languageLabel, gbc);
+        gbc.gridy = 4;
+        settingsPane.add(timerLabel, gbc);
+        gbc.gridy = 6;
+        settingsPane.add(settingsPlayBtn, gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        settingsPane.add(usernameField, gbc);
+        gbc.gridy = 2;
+        settingsPane.add(diffList, gbc);
+        gbc.gridy = 3;
+        settingsPane.add(languageList, gbc);
+        gbc.gridy = 4;
+        settingsPane.add(slider, gbc);
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.CENTER;
+        settingsPane.add(timeLabel, gbc);
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.EAST;
+        settingsPane.add(closeBtn, gbc);
+        
+        closeBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				shutdownSequence();
+			}
+        });
+        settingsPlayBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+                sendDataToServer(2, "Player ready");
+			}
+        });
+		disconnectBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				shutdownSequence();
+			}
+        });
         wordInput.addKeyListener(new KeyListener(){
         	@Override
         	public void keyPressed(KeyEvent e) {
@@ -272,12 +349,6 @@ public class connectClient implements Runnable{
         	public void keyTyped(KeyEvent e) {
         	}
         });
-		disconnectBtn.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				shutdownSequence();
-				
-			}
-        });
     }
     public void shutdownSequence(){
         try {
@@ -286,7 +357,7 @@ public class connectClient implements Runnable{
             this.input.close();
             this.writer.flush();
             this.writer.close();
-            
+            mediaPlayer.stop();
             try {
                 Thread.sleep(100);
                 this.socket.close();
