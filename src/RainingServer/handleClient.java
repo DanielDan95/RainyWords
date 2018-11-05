@@ -66,8 +66,14 @@ public class handleClient implements Runnable{
             case 2:
                 changeState(3);
                 break;
+            case 20:
+                this.game.handleCommands(message);
+                break;
+                
             case 21:
             case 22:
+                this.game.handleCommands(message);
+                break;
             case 101:
                 this.game.handleCommands(message);
                 break;
@@ -117,6 +123,7 @@ public class handleClient implements Runnable{
         this.isShutdown = true;
         System.out.println("ShutdownSequence Called");
         if(isServerCall){
+            this.close = true;
             try {
                 this.sendMessage(-1, "DISCONNECT");
                 this.input.close();

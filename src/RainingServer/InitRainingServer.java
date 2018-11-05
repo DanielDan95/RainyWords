@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -37,6 +38,8 @@ public class InitRainingServer extends JFrame implements ActionListener{
     ArrayList<Thread> gameThread;
     ArrayList<Game> gameList;
     ServerSocket server;
+    
+    ReentrantLock lock;
 
     
     
@@ -47,7 +50,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
         this.gameList = new ArrayList<Game>();
         setupUI();
         System.out.println("Server is up and running on port: " + this.PORT);
-        
+        lock = new ReentrantLock();
         
         try {
             server = new ServerSocket(this.PORT);
@@ -56,11 +59,14 @@ public class InitRainingServer extends JFrame implements ActionListener{
             Logger.getLogger(InitRainingServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-    
+        
     }
     public void startServer(){
+        Inviter inv = new Inviter(this.server, this.clients, this.threads, lock);
+        Thread th = new Thread(inv);
+        th.start();
         while(true){
-            try {
+            /*try {
                 handleClient client = new handleClient(this.server.accept()); 
                 this.clients.add(client);
                 Thread thread = new Thread(client);
@@ -81,12 +87,26 @@ public class InitRainingServer extends JFrame implements ActionListener{
 
             } catch (IOException ex) {
                 Logger.getLogger(InitRainingServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            }*/
+            try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    for(int i = 0; i < clients.size(); i++) {
+                        if(clients.get(i).close == true)    {
+                            System.out.println("Removing disconnecting client");
+                            this.clients.remove(clients.get(i));
+                        }
+                    }
+                    matching(); 
+                }
+                catch(Exception e)   {
+                    System.out.println("Matchin Error");
+                }
+            
         }
     }
 
     public void matching()   {
-        if(this.clients.size() %2 == 0)    {
+        if(this.clients.size() %2 == 0 && this.clients.size() != 0)    {
             int client1 = -1;
             int client2 = -1;
             for(int i = 0; i < clients.size(); i++) {
@@ -100,10 +120,9 @@ public class InitRainingServer extends JFrame implements ActionListener{
                     }
                 }
             }
-            System.out.println("KOM HIT");
-            clients.get(client1).changeState(2);
-            clients.get(client2).changeState(2);
-            matchStart(client1, client2);
+            if(client1 != -1 && client2 != -1){
+                matchStart(client1, client2);
+            }
         }
     }
 

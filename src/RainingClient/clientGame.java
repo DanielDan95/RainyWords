@@ -37,7 +37,11 @@ public class clientGame implements Runnable{
 	
 	Random rand = new Random();
 	
-	public clientGame(JPanel panel, JLabel scoreLabel){
+        public clientGame(){
+        
+        };
+        
+	public void initClientGame(JPanel panel, JLabel scoreLabel){
 		lock = new ReentrantLock();
                 canvas = new Canvas();
 		canvas.setBounds(0, 0, panel.getWidth()-10, panel.getHeight()-10);

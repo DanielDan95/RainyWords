@@ -31,6 +31,16 @@ public class connectClient implements Runnable{
     final int HEIGHT = 700;
     JLabel timeLabel;
     JLabel scoreLabel;
+    JComboBox<String> languageList;
+    JComboBox<String> diffList;
+    JSlider slider;
+    JTextField usernameField;
+    private String username = "Guest";
+    JButton settingsPlayBtn;
+    JLabel settingsTimeLabel;
+    JLabel statLabel;
+    
+    
     
     //Settings Connection
     final int SERVERPORT = 23456;
@@ -48,21 +58,26 @@ public class connectClient implements Runnable{
     JPanel old;
     JPanel panel;
     JPanel settingsPane;
-	JPanel gamePane;
+    JPanel gamePane;
     
     int counter = 0;
     
     MediaPlayer mediaPlayer;
     
-    public connectClient(JFrame frame, String username){
-    	this.frame = frame;
+    
+    
+    
+    public connectClient(JFrame frame, String username, JLabel statusLabel){
+        this.game = new clientGame();
+        this.frame = frame;
+        this.statLabel = statusLabel;
     	this.old = (JPanel) frame.getContentPane();
     	setupUI();
     	try {
             this.socket = new Socket(HOST, SERVERPORT);
             this.writer = new ObjectOutputStream(this.socket.getOutputStream());
             this.input = new ObjectInputStream(this.socket.getInputStream());
-            this.game.setWriter(writer);
+            
         	close = false;
         	sendDataToServer(1, username);
         }
@@ -74,6 +89,8 @@ public class connectClient implements Runnable{
             System.out.println("I/O error: " + e.getMessage());
             shutdownSequence();
     	}
+        
+    	
     }
     
     public void sendDataToServer(int status, String toSend) {
@@ -93,23 +110,28 @@ public class connectClient implements Runnable{
                 break;
             case 1:
                 System.out.println("Found opponent");
-				frame.setContentPane(settingsPane);
-				frame.revalidate();
+		frame.setContentPane(settingsPane);
+                this.statLabel.setVisible(false);
+		frame.revalidate();
                 break;
             case 2:
             	System.out.println("Game starting");
-            	game = new clientGame(gamePane, scoreLabel);
-                Thread thread = new Thread(game);
+                frame.setContentPane(panel);
+		frame.revalidate();
+		
+                game.initClientGame(gamePane, scoreLabel);
+                this.game.setWriter(this.writer);
+            	Thread thread = new Thread(game);
                 thread.start();
-				frame.setContentPane(panel);
-				frame.revalidate();
-				break;
+                break;
             case 9:
                 game.setId(Integer.parseInt(message.getMessage()));
                 break;
             //incoming settings
             case 20:
-                //handleIncomingSettings();
+                removeAllActionListeners();
+                importSettings(message.getMessage());
+                addAllActionListeners();
                 break;
             //call from server that new word incoming
             case 100:
@@ -233,61 +255,39 @@ public class connectClient implements Runnable{
         
         gamePane.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        JTextField usernameField = new JTextField();
+        usernameField = new JTextField();
+        usernameField.setText(this.username);
         usernameField.setPreferredSize(new Dimension(200, 20));
+        usernameField.addActionListener(new ActionListener() {
+                
+                public void actionPerformed(ActionEvent e) {
+                    sendDataToServer(1, usernameField.getText());
+                    username = usernameField.getText();
+                }
+            });
         settingsPane = new JPanel(new GridBagLayout());
         JLabel settingsLabel = new JLabel("Settings");
         JLabel settingNameLabel = new JLabel("Username");
-        JButton settingsPlayBtn = new JButton("Play"); 
+        settingsPlayBtn = new JButton("Play"); 
         JButton closeBtn = new JButton("Back");
         JLabel languageLabel = new JLabel("Language");
         JLabel diffLabel = new JLabel("Difficulty");
         JLabel timerLabel = new JLabel("Time Limit");
-        JLabel timeLabel = new JLabel("300");
+        settingsTimeLabel = new JLabel("300");
 
         String[] languageChoices = {"English", "Svenska"};
-        JComboBox<String> languageList = new JComboBox<String>(languageChoices);
+        languageList = new JComboBox<String>(languageChoices);
         languageList.setSelectedIndex(0);
-        languageList.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				switch(languageList.getSelectedIndex()){
-				case 0:
-					//lägg in så spelet är på engelska
-					break;
-				case 1:
-					//lägg in så spelet är på svenska
-					break;
-				}
-			}
-        });
+        
         
         String[] diffChoices = {"Easy", "Medium", "Hard"};
-        JComboBox<String> diffList = new JComboBox<String>(diffChoices);
+        diffList = new JComboBox<String>(diffChoices);
         diffList.setSelectedIndex(0);
-        diffList.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				switch(diffList.getSelectedIndex()){
-				case 0:
-					//lägg in så spelet är easy
-					break;
-				case 1:
-					//lägg in så spelet är medium
-					break;
-				case 2:
-					//lägg in så spelet är hard
-					break;
-				}
-			}
-        });
         
-        JSlider slider = new JSlider(JSlider.HORIZONTAL,60,600,300);
         
-        slider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				timeLabel.setText(""+((JSlider)e.getSource()).getValue());
-			}
-		});
+        slider = new JSlider(JSlider.HORIZONTAL,60,600,300);
+        
+        addAllActionListeners();
         
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
@@ -315,7 +315,7 @@ public class connectClient implements Runnable{
         settingsPane.add(slider, gbc);
         gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.CENTER;
-        settingsPane.add(timeLabel, gbc);
+        settingsPane.add(settingsTimeLabel, gbc);
         gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.EAST;
         settingsPane.add(closeBtn, gbc);
@@ -327,7 +327,8 @@ public class connectClient implements Runnable{
         });
         settingsPlayBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-                sendDataToServer(2, "Player ready");
+                            settingsPlayBtn.setEnabled(false);
+                            sendDataToServer(22, ""+game.getId());
 			}
         });
 		disconnectBtn.addActionListener(new ActionListener(){
@@ -350,9 +351,72 @@ public class connectClient implements Runnable{
         	}
         });
     }
+    public void removeAllActionListeners(){
+        ChangeListener[] cl = slider.getChangeListeners();
+        slider.removeChangeListener(cl[0]);
+        
+        ActionListener[] al = diffList.getActionListeners();
+        diffList.removeActionListener(al[0]);
+        
+        al = languageList.getActionListeners();
+        languageList.removeActionListener(al[0]);
+        
+        
+    
+    }
+    public void addAllActionListeners(){
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+            settingsTimeLabel.setText(""+((JSlider)e.getSource()).getValue());
+            System.out.println("exported slider called");
+            exportSettings();
+            }
+	});
+        
+        diffList.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+		exportSettings();
+            }
+        });
+        languageList.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				exportSettings();
+			}
+        });
+        
+    
+    }
+    
+    public void exportSettings(){
+        String resp = ""+this.diffList.getSelectedIndex();
+        resp += " " + this.languageList.getSelectedIndex();
+        resp += " " + this.slider.getValue();
+        
+        sendDataToServer(20, resp);
+        System.out.println("Clients Settings sended to Server");
+        
+    }
+    public void importSettings(String req){
+        
+        System.out.println("Inc Settings: " + req);
+        this.diffList.setSelectedIndex(Integer.parseInt(req.substring(0, req.indexOf(" "))));
+        req = req.substring((req.indexOf(" ")+1), req.length());
+        this.languageList.setSelectedIndex(Integer.parseInt(req.substring(0, req.indexOf(" "))));
+        req = req.substring((req.indexOf(" ")+1), req.length());
+        this.slider.setValue(Integer.parseInt(req));
+        this.settingsTimeLabel.setText(req);
+        
+        this.settingsPlayBtn.setEnabled(true);
+        
+        frame.revalidate();
+        System.out.println("Imported Settings");
+        
+    }
+    
     public void shutdownSequence(){
         try {
-        	sendDataToServer(-1, game.getId() + " DISCONNECT");
+            sendDataToServer(-1, game.getId() + " DISCONNECT");
             this.close = true;
             this.input.close();
             this.writer.flush();

@@ -6,6 +6,42 @@ import java.util.ArrayList;
 public class Library {
     
     ArrayList<String> wordlist = new ArrayList<String>();
+    ArrayList<String> wordlist2 = new ArrayList<String>();
+    ArrayList<String> wordlist3 = new ArrayList<String>();
+    
+    String[] lang = {"swedish", "english", "number"};
+    String currentLang = "english";
+    
+    ArrayList<String> current;
+    
+    
+    public Library(){
+        try (BufferedReader br = new BufferedReader(new FileReader("src/RainingServer/Library/"+lang[0]+".txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader("src/RainingServer/Library/"+lang[1]+".txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist2.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader("src/RainingServer/Library/"+lang[2]+".txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist3.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+    
+    }
     public Library(String lang){
         
         try (BufferedReader br = new BufferedReader(new FileReader("RainingServer/Library/"+lang+".txt"))) {
@@ -18,10 +54,29 @@ public class Library {
         }
     
     }
-    public String getRandomWord(){
-        int number = (int) (Math.random()*this.wordlist.size());
+
+    public void setCurrentLang(String currentLang) {
+        this.currentLang = currentLang;
+    }
+    
+    private void getCurrentList(){
+        if(this.currentLang.equals("swedish")){
+            System.out.println("Found Swedish Dict");
+            this.current = wordlist;
+        }
+        else if(this.currentLang.equals("english")){
+            this.current = wordlist2;
+        }
+        else if(this.currentLang.equals("number")){
+            this.current = wordlist3;
+        }
         
-        return wordlist.get(number);
+    }
+    public String getRandomWord(){
+        getCurrentList();
+        int number = (int) (Math.random()*this.current.size());
+        System.out.println("Number:" + number);
+        return current.get(number);
     }
     
     

@@ -26,9 +26,10 @@ import javax.swing.event.ChangeListener;
 public class clientManager extends JFrame {
 
 	JFrame frame = this;
+        JLabel statusLabel;
 	connectClient client;
 	
-	final int WIDTH = 1000;
+    final int WIDTH = 1000;
     final int HEIGHT = 700;
     
     String username = "Guest";
@@ -70,7 +71,7 @@ public class clientManager extends JFrame {
     	
     	BufferedImage image = null;
     	try {
-    	    image = ImageIO.read(new File("RainingClient/Assets/raining.png"));
+    	    image = ImageIO.read(new File("src/RainingClient/Assets/raining.png"));
     	} catch (IOException ex) {
     	    ex.printStackTrace();
     	}
@@ -83,7 +84,7 @@ public class clientManager extends JFrame {
     	}
         JButton playBtn = new JButton("Play");
 
-        JLabel statusLabel = new JLabel("Waiting for opponent...");
+        statusLabel = new JLabel("Waiting for opponent...");
         statusLabel.setVisible(false);
         
         
@@ -122,12 +123,12 @@ public class clientManager extends JFrame {
 		frame.revalidate();
         
         playBtn.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				statusLabel.setVisible(true);
-				client = new connectClient(frame, username);
-	            Thread thread = new Thread(client);
-	            thread.start();
-			}
+            public void actionPerformed(ActionEvent e){
+		statusLabel.setVisible(true);
+		client = new connectClient(frame, username, statusLabel);
+	        Thread thread = new Thread(client);
+	        thread.start();
+            }
         });
     }
 	

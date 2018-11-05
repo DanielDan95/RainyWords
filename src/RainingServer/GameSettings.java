@@ -18,6 +18,7 @@ public class GameSettings {
     }
 
     public void setdifficulty(int diff) {
+        diff++;
         this.difficulty = diff;
     }
     
