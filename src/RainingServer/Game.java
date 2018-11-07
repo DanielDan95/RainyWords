@@ -34,12 +34,12 @@ public class Game implements Runnable{
     ArrayList<String> wordList = new ArrayList<String>();
     
     
-    public Game(handleClient player1, handleClient player2){
+    public Game(handleClient player1, handleClient player2, boolean debug){
         this.player1 = player1;
         this.player2 = player2;
         this.settings = new GameSettings();
         this.id = (int) (Math.random()*1000)+1;
-        this.library = new Library();
+        this.library = new Library(debug);
         this.library.setCurrentLang(settings.getLanguage());
         
         this.player1.setGame(this);
@@ -140,12 +140,14 @@ public class Game implements Runnable{
                     int points = word.length();
                     if(playerId == 1){
                         score1 += points;
-                        this.player1.sendMessage(105, ""+score1);
+                      //  this.player1.sendMessage(105, ""+score1);
                     }
                     else if(playerId == 2){
                         score2 += points;
-                        this.player2.sendMessage(105, ""+score2);
+                    //    this.player2.sendMessage(105, ""+score2);
                     }
+                    String scoreLabel = this.player1.name + ": " + score1 + "    " + this.player2.name + ": " + score2;
+                    broadcast(105, scoreLabel);
                     broadcast(101, word);
                 }
             }
@@ -169,6 +171,8 @@ public class Game implements Runnable{
             this.gameStarter = true;
             this.library.setCurrentLang(settings.getLanguage());
             broadcast(2, "");
+            String scoreLabel = this.player1.name + ": " + score1 + "    " + this.player2.name + ": " + score2;
+            broadcast(105, scoreLabel);
         }
     }
     

@@ -2,6 +2,8 @@ package RainingServer;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Library {
     
@@ -13,9 +15,12 @@ public class Library {
     String currentLang = "english";
     
     ArrayList<String> current;
+    boolean debug;
     
+    public Library(boolean debug){
+        this.debug = debug;
+        if(debug){
     
-    public Library(){
         try (BufferedReader br = new BufferedReader(new FileReader("src/RainingServer/Library/"+lang[0]+".txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -38,6 +43,45 @@ public class Library {
                 wordlist3.add(line);
             }
         }catch(Exception ex){
+        
+        }
+        }
+        else{
+        try{
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("Library/"+lang[0]+".txt");
+        try {
+            BufferedReader br = new BufferedReader(new BufferedReader(new InputStreamReader(is, "UTF-8")));
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+        is = this.getClass().getClassLoader().getResourceAsStream("Library/"+lang[1]+".txt");
+        try {
+            BufferedReader br = new BufferedReader(new BufferedReader(new InputStreamReader(is, "UTF-8")));
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist2.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+        is = this.getClass().getClassLoader().getResourceAsStream("Library/"+lang[2]+".txt");
+        try {
+            BufferedReader br = new BufferedReader(new BufferedReader(new InputStreamReader(is, "UTF-8")));
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordlist3.add(line);
+            }
+        }catch(Exception ex){
+        
+        }
+        }catch(Exception e){
+        
+        }
+        
         
         }
     

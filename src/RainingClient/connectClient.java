@@ -44,7 +44,7 @@ public class connectClient implements Runnable{
     
     //Settings Connection
     final int SERVERPORT = 23456;
-    final String HOST = "localhost";
+    String host = "localhost";
 
     Socket socket;
     ObjectOutputStream writer;
@@ -67,14 +67,15 @@ public class connectClient implements Runnable{
     
     
     
-    public connectClient(JFrame frame, String username, JLabel statusLabel){
+    public connectClient(JFrame frame, String username, JLabel statusLabel, String ip){
+        this.host = ip;
         this.game = new clientGame();
         this.frame = frame;
         this.statLabel = statusLabel;
     	this.old = (JPanel) frame.getContentPane();
     	setupUI();
     	try {
-            this.socket = new Socket(HOST, SERVERPORT);
+            this.socket = new Socket(this.host, SERVERPORT);
             this.writer = new ObjectOutputStream(this.socket.getOutputStream());
             this.input = new ObjectInputStream(this.socket.getInputStream());
             
@@ -143,7 +144,7 @@ public class connectClient implements Runnable{
                 break;
             //Adding score that server calls Client
             case 105:
-                this.scoreLabel.setText("Score: " + message.getMessage());
+                this.scoreLabel.setText(message.getMessage());
                 break;
                 
             //Call from server to broadcast current timer countdown    

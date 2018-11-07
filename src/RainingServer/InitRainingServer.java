@@ -15,6 +15,8 @@ import javax.swing.*;
 
 public class InitRainingServer extends JFrame implements ActionListener{
     
+    final boolean debug = true;
+    
     //Settings UI
     final int WIDTH = 530;
     final int HEIGHT = 500;
@@ -129,7 +131,7 @@ public class InitRainingServer extends JFrame implements ActionListener{
     public void matchStart(int client1, int client2)    {
         clients.get(client1).sendMessage(1, clients.get(client2).getName());
         clients.get(client2).sendMessage(1, clients.get(client1).getName());
-        Game game = new Game(clients.get(client1), clients.get(client2));
+        Game game = new Game(clients.get(client1), clients.get(client2), this.debug);
         
         this.gameList.add(game);
         Thread th = new Thread(game);

@@ -25,6 +25,8 @@ import javax.swing.event.ChangeListener;
 @SuppressWarnings("serial")
 public class clientManager extends JFrame {
 
+        final boolean debug = true;
+    
 	JFrame frame = this;
         JLabel statusLabel;
 	connectClient client;
@@ -33,8 +35,10 @@ public class clientManager extends JFrame {
     final int HEIGHT = 700;
     
     String username = "Guest";
+    String ip = "";
 	
-	public clientManager(){
+	public clientManager(String ip){
+                this.ip = ip;
 		setupUI();
 	}
 	public void setupUI(){
@@ -71,7 +75,13 @@ public class clientManager extends JFrame {
     	
     	BufferedImage image = null;
     	try {
-    	    image = ImageIO.read(new File("src/RainingClient/Assets/raining.png"));
+            if(debug){
+                image = ImageIO.read(new File("src/RainingClient/Assets/raining.png"));
+            }
+            else{
+                image = ImageIO.read(clientManager.class.getResource("Assets/raining.png"));
+    	    }
+            
     	} catch (IOException ex) {
     	    ex.printStackTrace();
     	}
@@ -125,7 +135,7 @@ public class clientManager extends JFrame {
         playBtn.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
 		statusLabel.setVisible(true);
-		client = new connectClient(frame, username, statusLabel);
+		client = new connectClient(frame, username, statusLabel, ip);
 	        Thread thread = new Thread(client);
 	        thread.start();
             }
@@ -134,6 +144,16 @@ public class clientManager extends JFrame {
 	
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")
-		clientManager asd = new clientManager();
+                String ip = "localhost";
+                
+                try{
+                    if(args[0].length() != 0){
+                        ip = args[0];
+                    }
+                    System.out.println("new ip: " + ip);
+                }catch(Exception e){
+                
+                }
+		clientManager asd = new clientManager(ip);
 	}
 }
